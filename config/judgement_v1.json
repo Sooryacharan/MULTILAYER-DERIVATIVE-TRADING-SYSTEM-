@@ -1,0 +1,22 @@
+{
+  "version": "v1",
+  "n_min": 200,
+  "alpha": 0.05,
+  "bootstrap_B": 10000,
+  "seed": 42,
+  "vol_window_returns": 20,
+  "vol_pct_window": 252,
+  "pi_high": 0.80,
+  "pi_ext": 0.95,
+  "w0": 0.10,
+  "w1": 0.25,
+  "corr_window": 60,
+  "rho0": 0.50,
+  "rho1": 0.90,
+  "kappa0": 0.8,
+  "kappa1": 1.2,
+  "delta": 0.5,
+  "m_min": 0.25,
+  "oos_fraction": 0.3,
+  "max_data_age_days": 4
+}
