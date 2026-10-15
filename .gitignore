@@ -4,3 +4,7 @@ __pycache__/
 journal/
 .venv/
 *.egg-info/
+.env
+*.db
+state/
+data/

@@ -41,14 +41,20 @@ def _metrics(net: np.ndarray, capital: float, cfg: JudgementConfig) -> dict:
 
 def compare_gated_ungated(bars: pd.DataFrame, trades: list[Trade], signals: list[Signal],
                           cfg: JudgementConfig, oos_start, capital: float = 1_000_000.0,
-                          tolerance: float = 0.2, journal: Journal | None = None) -> Comparison:
-    """Evaluate on signals dated >= oos_start. `tolerance` is the pre-set H2 allowance (fraction)."""
+                          tolerance: float = 0.2, journal: Journal | None = None,
+                          intraday: bool = False) -> Comparison:
+    """Evaluate on signals dated >= oos_start. `tolerance` is the pre-set H2 allowance (fraction).
+    intraday=True: `bars` are daily bars; the signal day's own bar and trades are hidden (incomplete at decision time)."""
     ung, gat, counts = [], [], {"TAKE": 0, "DOWNSIZE": 0, "SKIP": 0}
     mults = []
     for tr, sg in zip(trades, signals):
         if sg.date < oos_start:
             continue
-        v = judge(sg, sg.date, bars, trades, cfg, capital=capital)
+        if intraday:
+            v = judge(sg, sg.date, bars.loc[bars.index < pd.Timestamp(sg.date)],
+                      [t for t in trades if t.exit_date < sg.date], cfg, capital=capital)
+        else:
+            v = judge(sg, sg.date, bars, trades, cfg, capital=capital)
         counts[v.verdict] += 1
         if journal:
             journal.log("verdict", {"signal_date": sg.date, **v.to_record()})

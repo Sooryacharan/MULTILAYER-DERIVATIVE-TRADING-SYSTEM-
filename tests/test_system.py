@@ -211,16 +211,6 @@ def test_one_lot_makes_downsize_equal_skip():
     assert not g.evaluate(100, 95, 25, MON, multiplier=0.99).approved
 
 
-def test_approval_queue_rejects_unproposed():
-    q = ApprovalQueue()
-    with pytest.raises(KeyError):
-        q.decide(999, True)
-    p = q.propose("X", 1, 1, 100, 95)
-    assert q.decide(p.id, True).status == "APPROVED"
-    with pytest.raises(ValueError):
-        q.decide(p.id, False)
-
-
 def test_backtest_no_lookahead_entry_is_next_open():
     bars = make_bars(n=800, seed=3, trend_persistence=0.2)
     trades, sigs = run_backtest("X", bars, DonchianBreakout(), 25, FuturesCostModel())

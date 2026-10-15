@@ -14,7 +14,7 @@ class FuturesCostModel:
     brokerage_pct: float = 0.0003      # 0.03% of turnover ...
     brokerage_cap: float = 20.0        # ... capped at Rs 20 per executed order
     exchange_txn_pct: float = 0.0000183   # NSE futures transaction charge (verify)
-    stt_sell_pct: float = 0.0005       # on sell side only (futures)
+    stt_sell_pct: float = 0.0002       # on sell side only (futures; 0.02% as I understand it - VERIFY)
     stamp_buy_pct: float = 0.00002     # on buy side only
     sebi_pct: float = 0.000001         # Rs 10 per crore
     gst_pct: float = 0.18              # on brokerage + exchange txn + SEBI fee

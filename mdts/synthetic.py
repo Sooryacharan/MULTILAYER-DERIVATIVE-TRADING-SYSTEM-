@@ -24,3 +24,27 @@ def make_bars(n: int = 3000, seed: int = 0, start_price: float = 20000.0, daily_
     low = np.minimum(open_, close) - spread
     idx = pd.bdate_range(start, periods=n)
     return pd.DataFrame({"open": open_, "high": high, "low": low, "close": close}, index=idx)
+
+
+def make_minute_bars(days: int = 1500, seed: int = 0, start_price: float = 25000.0, daily_vol: float = 0.008,
+                     orb_edge: float = 0.0, start: str = "2018-01-01") -> pd.DataFrame:
+    """375 one-minute bars/day from 09:15. orb_edge > 0 adds post-opening-range drift in the direction of
+    the opening move (in per-minute sd units) so a known edge exists; 0 => no edge. Synthetic only."""
+    rng = np.random.default_rng(seed)
+    n = 375
+    regime = np.repeat(rng.choice([0.7, 1.0, 1.8], size=days // 40 + 1, p=[0.3, 0.5, 0.2]), 40)[:days]
+    sd = (daily_vol * regime / np.sqrt(n))[:, None]
+    r = rng.normal(0, 1, (days, n)) * sd
+    sign = np.sign(r[:, :15].sum(axis=1))[:, None]
+    r[:, 15:] += orb_edge * sign * sd
+    overnight = rng.normal(0, daily_vol * 0.3, days)
+    r[:, 0] += overnight
+    close = start_price * np.exp(np.cumsum(r.ravel())).reshape(days, n)
+    open_ = np.concatenate([[start_price], close.ravel()[:-1]]).reshape(days, n)
+    wick = np.abs(rng.normal(0, 1, (days, n))) * sd * close * 0.5
+    high = np.maximum(open_, close) + wick
+    low = np.minimum(open_, close) - wick
+    d = pd.bdate_range(start, periods=days)
+    idx = (d.values[:, None] + (pd.Timedelta(hours=9, minutes=15) + pd.to_timedelta(np.arange(n), unit="m")).values[None, :]).ravel()
+    return pd.DataFrame({"open": open_.ravel(), "high": high.ravel(), "low": low.ravel(),
+                         "close": close.ravel()}, index=pd.DatetimeIndex(idx))

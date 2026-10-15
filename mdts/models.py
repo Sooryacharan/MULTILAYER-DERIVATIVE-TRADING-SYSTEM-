@@ -31,6 +31,7 @@ class Signal:
     entry: float            # intended entry price
     stop: float
     lot_size: int
+    target: Optional[float] = None
 
 
 @dataclass
